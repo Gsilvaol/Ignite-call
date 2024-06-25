@@ -4,6 +4,8 @@ import { ArrowRight } from "phosphor-react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useRouter } from "next/router";
+import { useEffect } from "react";
 
 const registerFormSchema = z.object({
     username: z.string()
@@ -17,55 +19,63 @@ const registerFormSchema = z.object({
 type RegisterFormData = z.infer<typeof registerFormSchema>
 
 export default function Register() {
-    const { register, handleSubmit, formState: { errors, isSubmitting } } = useForm<RegisterFormData>({
-        resolver: zodResolver(registerFormSchema)
-})
+    const { register, handleSubmit, setValue, formState: { errors, isSubmitting } } = useForm<RegisterFormData>({
+        resolver: zodResolver(registerFormSchema),
+    })
 
-async function handleRegister(data: RegisterFormData) {
-    console.log(data)
-}
+    const router = useRouter()
 
-return (
-    <Container>
-        <Header>
-            <Heading as="strong">
-                Bem-vindo ao Ignite Call!
-            </Heading>
-            <Text>
-                Precisamos de algumas informações para criar seu perfil! Ah, você pode editar essas informações depois.
-            </Text>
+    useEffect(() => {
+        if (router.query?.username) { 
+            setValue('username', String(router.query.username))
+        }
+    }, [router.query?.username, setValue])
 
-            <MultiStep size={4} currentStep={1} />
-        </Header>
+    async function handleRegister(data: RegisterFormData) {
+        console.log(data)
+    }
 
-        <Form as="form" onSubmit={handleSubmit(handleRegister)}>
-            <label>
-                <Text size="sm">Nome de usuário</Text>
-                <TextInput prefix="ignite.com/" placeholder="seu-usuario" {...register('username')} />
+    return (
+        <Container>
+            <Header>
+                <Heading as="strong">
+                    Bem-vindo ao Ignite Call!
+                </Heading>
+                <Text>
+                    Precisamos de algumas informações para criar seu perfil! Ah, você pode editar essas informações depois.
+                </Text>
 
-                {errors.username && (
-                    <FormError size="sm">
-                        {errors.username.message}
-                    </FormError>
-                )}
-            </label>
+                <MultiStep size={4} currentStep={1} />
+            </Header>
 
-            <label>
-                <Text size="sm">Nome completo</Text>
-                <TextInput placeholder="Seu nome" {...register('name')} />
+            <Form as="form" onSubmit={handleSubmit(handleRegister)}>
+                <label>
+                    <Text size="sm">Nome de usuário</Text>
+                    <TextInput prefix="ignite.com/" placeholder="seu-usuario" {...register('username')} />
 
-                {errors.name && (
-                    <FormError size="sm">
-                        {errors.name.message}
-                    </FormError>
-                )}
-            </label>
+                    {errors.username && (
+                        <FormError size="sm">
+                            {errors.username.message}
+                        </FormError>
+                    )}
+                </label>
 
-            <Button type="submit" disabled={isSubmitting}>
-                Próximo passo
-                <ArrowRight />
-            </Button>
-        </Form>
-    </Container>
-)
+                <label>
+                    <Text size="sm">Nome completo</Text>
+                    <TextInput placeholder="Seu nome" {...register('name')} />
+
+                    {errors.name && (
+                        <FormError size="sm">
+                            {errors.name.message}
+                        </FormError>
+                    )}
+                </label>
+
+                <Button type="submit" disabled={isSubmitting}>
+                    Próximo passo
+                    <ArrowRight />
+                </Button>
+            </Form>
+        </Container>
+    )
 }
