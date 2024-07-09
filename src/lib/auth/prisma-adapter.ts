@@ -1,18 +1,18 @@
 import { Adapter } from "next-auth/adapters";
 import { prisma } from "../prisma";
-import { NextApiRequest, NextApiResponse } from "next";
+import { NextApiRequest, NextApiResponse, NextPageContext } from "next";
 import { parseCookies, destroyCookie } from "nookies";
 
 export function PrismaAdapter(
-  req: NextApiRequest,
-  res: NextApiResponse
+  req: NextApiRequest | NextPageContext["req"],
+  res: NextApiResponse | NextPageContext["res"],
 ): Adapter {
   return {
     async createUser(user) {
-      const { '@ignitecall:userId': userIdOnCookies } = parseCookies({ req })
+      const { "@ignitecall:userId": userIdOnCookies } = parseCookies({ req });
 
       if (!userIdOnCookies) {
-        throw new Error("User ID not found on cookies.")
+        throw new Error("User ID not found on cookies.");
       }
 
       const prismaUser = await prisma.user.update({
@@ -24,7 +24,7 @@ export function PrismaAdapter(
           email: user.email,
           avatar_url: user.avatar_url,
         },
-      })
+      });
 
       return {
         id: prismaUser.id,
@@ -35,9 +35,9 @@ export function PrismaAdapter(
         avatar_url: prismaUser.avatar_url!,
       };
 
-      destroyCookie({ res }, '@ignitecall:userId', {
-        path: '/'
-      })
+      destroyCookie({ res }, "@ignitecall:userId", {
+        path: "/",
+      });
     },
 
     async getUser(id) {
@@ -47,8 +47,8 @@ export function PrismaAdapter(
         },
       });
 
-      if (!user) { 
-        return null
+      if (!user) {
+        return null;
       }
 
       return {
@@ -69,8 +69,7 @@ export function PrismaAdapter(
 
       if (!user) {
         return null;
-       }
-
+      }
 
       return {
         id: user.id,
@@ -94,11 +93,11 @@ export function PrismaAdapter(
         },
       });
 
-      if (!account) { 
-        return null
+      if (!account) {
+        return null;
       }
 
-      const { user } = account
+      const { user } = account;
 
       return {
         id: user.id,
@@ -216,12 +215,12 @@ export function PrismaAdapter(
       };
     },
 
-    async deleteSession(sessionToken) { 
+    async deleteSession(sessionToken) {
       await prisma.session.delete({
         where: {
           session_token: sessionToken,
-        }
-      })
-    }
+        },
+      });
+    },
   };
 }
