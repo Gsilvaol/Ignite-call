@@ -24,20 +24,21 @@ const timeIntervalsFormSchema = z.object({
             message: 'Voce precisa selecionar pelo menos um dia da semana!',
         })
         .transform(intervals => {
-            return intervals.map(interval => {
+            return intervals.map((interval) => {
                 return {
                     weekDay: interval.weekDay,
                     startTimeInMinutes: convertTimeStringToMinutes(interval.startTime),
-                    endTimeInMinutes: convertTimeStringToMinutes(interval.startTime),
+                    endTimeInMinutes: convertTimeStringToMinutes(interval.endTime),
                 }
             })
         })
-        .refine(intervals => {
-            return intervals.every(
-                (interval) =>
-                    interval.endTimeInMinutes - 60 >= interval.startTimeInMinutes,
-            )
-        },
+        .refine(
+            (intervals) => {
+                return intervals.every(
+                    (interval) =>
+                        interval.endTimeInMinutes - 60 >= interval.startTimeInMinutes,
+                )
+            },
             {
                 message: 'O horário de término deve ser pelo menos 1h distante do início.',
             },
@@ -52,9 +53,9 @@ export default function TimeIntervals() {
     const {
         register,
         handleSubmit,
-        formState: { isSubmitting, errors },
         control,
         watch,
+        formState: { isSubmitting, errors },
     } = useForm<TimeIntervalsFormInput>({
         resolver: zodResolver(timeIntervalsFormSchema),
         defaultValues: {
@@ -83,8 +84,8 @@ export default function TimeIntervals() {
         const { intervals } = data as TimeIntervalsFormOutput
 
         await api.post('/users/time-intervals', {
-        intervals,
-    })
+            intervals,
+        })
     }
 
     return (

@@ -5,8 +5,8 @@ import GoogleProvider, { GoogleProfile } from "next-auth/providers/google";
 
 export function buildNextAuthOptions(
   req: NextApiRequest,
-  res: NextApiResponse,
-): NextAuthOptions  {
+  res: NextApiResponse
+): NextAuthOptions {
   return {
     adapter: PrismaAdapter(req, res),
 
@@ -25,11 +25,11 @@ export function buildNextAuthOptions(
           return {
             id: profile.sub,
             name: profile.name,
-            username: '',
+            username: "",
             email: profile.email,
             avatar_url: profile.picture,
-          }
-        }
+          };
+        },
       }),
     ],
 
@@ -44,16 +44,16 @@ export function buildNextAuthOptions(
         return true;
       },
 
-      async session({ session, user }) { 
+      async session({ session, user }) {
         return {
           ...session,
           user,
-        }
-      }
+        };
+      },
     },
   };
-  }
-  
+}
+
 export default async function auth(req: NextApiRequest, res: NextApiResponse) {
-  return await NextAuth(req, res, buildNextAuthOptions(req, res))
+  return await NextAuth(req, res, buildNextAuthOptions(req, res));
 }
